@@ -2,7 +2,7 @@
 
 > **An Edge-AI Powered Voice Assistant with On-Device Wake Word Detection, Duplex Audio Streaming, Real-Time Emotion UI, and Model Context Protocol (MCP) Hardware Control.**
 > 
-> *Created for ECE 327 Embedded Systems Project*  
+>   
 > *Author: Shivam Mehra*
 
 ---
