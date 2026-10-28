@@ -1,0 +1,199 @@
+menu "Harvya AI Assistant"
+
+config OTA_URL
+    string "Default OTA URL"
+    default "https://your-server.com/harvya-ai/ota/"
+    help
+        The application will access this URL to check for new firmwares and server address.
+
+choice
+    prompt "Flash Assets"
+    default FLASH_DEFAULT_ASSETS
+    help
+        Select the assets to flash.
+
+    config FLASH_NONE_ASSETS
+        bool "Do not flash assets"
+    config FLASH_DEFAULT_ASSETS
+        bool "Flash Default Assets"
+    config FLASH_CUSTOM_ASSETS
+        bool "Flash Custom Assets"
+endchoice
+
+config CUSTOM_ASSETS_FILE
+    depends on FLASH_CUSTOM_ASSETS
+    string "Custom Assets File"
+    default "assets.bin"
+    help
+        The custom assets file to flash.
+        It can be a local file relative to the project directory or a remote url.
+
+choice
+    prompt "Default Language"
+    default LANGUAGE_EN_US
+    help
+        Select device display and speech language (Harvya AI supports English and Hindi)
+
+    config LANGUAGE_EN_US
+        bool "English"
+    config LANGUAGE_HI_IN
+        bool "Hindi"
+endchoice
+
+choice BOARD_TYPE
+    prompt "Board Type"
+    default BOARD_TYPE_BREAD_COMPACT_WIFI_LCD
+    help
+        Harvya AI Board configuration
+
+    config BOARD_TYPE_BREAD_COMPACT_WIFI_LCD
+        bool "Harvya AI -- ESP32-S3 + INMP441 + MAX98357 + ST7735 1.8inch SPI LCD"
+        depends on IDF_TARGET_ESP32S3
+endchoice
+
+choice DISPLAY_LCD_TYPE
+    depends on BOARD_TYPE_BREAD_COMPACT_WIFI_LCD
+    prompt "LCD Type"
+    default LCD_ST7735_128X160
+    help
+        LCD Display Type
+    config LCD_ST7735_128X160
+        bool "ST7735 128*160 (1.8 inch SPI)"
+endchoice
+
+choice DISPLAY_STYLE
+    prompt "Select display style"
+    default USE_DEFAULT_MESSAGE_STYLE
+    help
+        Select display style for Harvya AI device
+
+    config USE_DEFAULT_MESSAGE_STYLE
+        bool "Enable default message style"
+endchoice
+
+config USE_MULTILINE_CHAT_MESSAGE
+    bool "Use multiline chat message display"
+    depends on USE_DEFAULT_MESSAGE_STYLE
+    default n
+    help
+        When enabled, the chat message area in the default display mode shows
+        multiple wrapped lines that grow upward from the bottom of the screen,
+        with auto-adaptive height.
+        When disabled (default), a single-line horizontally scrolling label
+        is shown at the bottom of the screen.
+
+choice WAKE_WORD_TYPE
+    prompt "Wake Word Implementation Type"
+    default USE_AFE_WAKE_WORD if (IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32P4) && SPIRAM
+    default WAKE_WORD_DISABLED
+    help
+        Choose the type of wake word implementation to use
+
+    config WAKE_WORD_DISABLED
+        bool "Disabled"
+        help
+            Disable wake word detection
+
+    config USE_AFE_WAKE_WORD
+        bool "Wakenet model with AFE"
+        depends on (IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32P4) && SPIRAM
+        help
+            Support AEC if available, requires ESP32 S3 and PSRAM
+
+    config USE_CUSTOM_WAKE_WORD
+        bool "Multinet model (Custom Wake Word)"
+        depends on (IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32P4) && SPIRAM
+        help
+            Requires ESP32 S3 and PSRAM
+
+endchoice
+
+config CUSTOM_WAKE_WORD
+    string "Custom Wake Word"
+    default "harvya"
+    depends on USE_CUSTOM_WAKE_WORD
+    help
+        Custom Wake Word, phonetic pronunciation separated by spaces
+
+config CUSTOM_WAKE_WORD_DISPLAY
+    string "Custom Wake Word Display"
+    default "Harvya"
+    depends on USE_CUSTOM_WAKE_WORD
+    help
+        Greeting sent to the server after wake word detection
+
+config CUSTOM_WAKE_WORD_THRESHOLD
+    int "Custom Wake Word Threshold (%)"
+    default 20
+    range 1 99
+    depends on USE_CUSTOM_WAKE_WORD
+    help
+        Custom Wake Word Threshold, range 1-99, the smaller the more sensitive, default 20
+
+config SEND_WAKE_WORD_DATA
+    bool "Send Wake Word Data"
+    default y
+    depends on USE_AFE_WAKE_WORD || USE_CUSTOM_WAKE_WORD
+    help
+        Send wake word data to the server as the first message of the conversation and wait for response
+
+config WAKE_WORD_DETECTION_IN_LISTENING
+    bool "Enable Wake Word Detection in Listening Mode"
+    default n
+    depends on USE_AFE_WAKE_WORD || USE_CUSTOM_WAKE_WORD
+    help
+        Enable wake word detection while in listening mode.
+        When enabled, the device can detect wake word during listening,
+        which allows interrupting the current conversation.
+        When disabled (default), wake word detection is turned off during listening.
+
+config USE_AUDIO_PROCESSOR
+    bool "Enable Audio Noise Reduction"
+    default y
+    depends on (IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32P4) && SPIRAM
+    help
+        Requires ESP32 S3 and PSRAM
+
+config USE_AUDIO_DEBUGGER
+    bool "Enable Audio Debugger"
+    default n
+    help
+        Enable audio debugger, send audio data through UDP to the host machine
+
+menu "WiFi Configuration Method"
+    help
+        WiFi Configuration Method Selection
+    config USE_HOTSPOT_WIFI_PROVISIONING
+        bool "Hotspot"
+        default y
+        help
+            Use WiFi Hotspot to transmit WiFi configuration data
+    config USE_ACOUSTIC_WIFI_PROVISIONING
+        bool "Acoustic"
+        help
+            Use audio signal to transmit WiFi configuration data
+
+    config USE_ESP_BLUFI_WIFI_PROVISIONING
+        bool "Esp Blufi"
+        help
+            Use esp blufi protocol to transmit WiFi configuration data
+        select BT_ENABLED
+        select BT_BLE_42_FEATURES_SUPPORTED
+        select BT_BLE_BLUFI_ENABLE
+        select MBEDTLS_DHM_C
+endmenu
+
+config AUDIO_DEBUG_UDP_SERVER
+    string "Audio Debug UDP Server Address"
+    default "192.168.2.100:8000"
+    depends on USE_AUDIO_DEBUGGER
+    help
+        UDP server address, format: IP:PORT, used to receive audio debugging data
+
+config RECEIVE_CUSTOM_MESSAGE
+    bool "Enable Custom Message Reception"
+    default n
+    help
+        Enable custom message reception, allow the device to receive custom messages from the server (preferably through the MQTT protocol)
+
+endmenu

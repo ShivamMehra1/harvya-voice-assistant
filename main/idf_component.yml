@@ -1,0 +1,29 @@
+﻿## IDF Component Manager Manifest File
+## Harvya AI -- ESP32-S3 + INMP441 + MAX98357 + ST7735 1.8" 128x160 SPI LCD
+
+dependencies:
+
+  ## --- WiFi / Networking ---
+  78/esp-wifi-connect: ~3.1.3
+
+  ## --- Display / Fonts ---
+  78/harvya-ai-fonts: ~1.6.0
+  espressif/esp_lcd_panel_io_additions: ^1.0.1
+  esp_lvgl_port: ~2.7.2
+  espressif/esp_mmap_assets: ^1.3.2
+  lvgl/lvgl: ~9.5.0
+
+  ## --- Audio ---
+  espressif/esp_audio_codec: ~2.4.1
+  espressif/esp_audio_effects: ~1.2.1
+  espressif/esp_codec_dev: ~1.5.6
+  espressif/esp-sr: ~2.3.0
+
+  ## --- IO / Peripheral ---
+  espressif/adc_battery_estimation: ^0.2.1
+  espressif/button: ~4.1.5
+  espressif/led_strip: ~3.0.2
+
+  ## Required IDF version
+  idf:
+    version: '>=5.5.2'

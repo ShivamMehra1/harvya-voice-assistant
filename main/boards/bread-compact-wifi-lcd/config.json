@@ -1,0 +1,6 @@
+{
+    "name": "Harvya AI Bread Compact WiFi LCD",
+    "type": "bread-compact-wifi-lcd",
+    "target": "esp32s3",
+    "description": "Harvya AI Assistant board with ESP32-S3, INMP441 I2S microphone, MAX98357 I2S amplifier, and ST7735 1.8 inch SPI TFT LCD"
+}
